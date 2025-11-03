@@ -7,7 +7,7 @@ This module provides functionality to generate performance visualization plots.
 import logging
 import platform
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -38,6 +38,7 @@ def plot_performance_data(
     output_path: Path,
     figsize=(12, 6),
     dpi=100,
+    actual_duration: Optional[float] = None,
 ):
     """Generate a performance plot with CPU and memory usage over time.
 
@@ -49,6 +50,7 @@ def plot_performance_data(
       output_path (Path): Path where the plot will be saved
       figsize (tuple): Figure size (width, height) in inches (default: (12, 6))
       dpi (int): Resolution in dots per inch (default: 100)
+      actual_duration (Optional[float]): Actual process runtime in seconds (default: None)
     """
     # Handle empty data case - create minimal data for visualization
     if not cpu_data or not memory_data or not timestamps:
@@ -91,8 +93,12 @@ def plot_performance_data(
     line2 = ax2.plot(timestamps, cpu_data, color=color_cpu, label="CPU 使用率", linewidth=1.5)
     ax2.tick_params(axis="y", labelcolor=color_cpu)
 
-    # Add title
-    duration = timestamps[-1] if timestamps else 0
+    # Add title - use actual_duration if provided, otherwise use last timestamp
+    if actual_duration is not None and actual_duration > 0:
+        duration = actual_duration
+    else:
+        duration = timestamps[-1] if timestamps else 0
+    
     max_cpu = max(cpu_data) if cpu_data else 0
     max_memory = max(memory_data) if memory_data else 0
     

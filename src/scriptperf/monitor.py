@@ -40,6 +40,8 @@ class PerformanceMonitor:
         # For CPU percentage calculation
         self.last_cpu_times = None
         self.start_time = None
+        self.process_start_time = None  # Process creation time
+        self.process_end_time = None  # Process termination time
 
     def set_process(self, process):
         """Set the process to monitor.
@@ -57,6 +59,11 @@ class PerformanceMonitor:
                 raise ValueError("Invalid process object")
 
             self.start_time = time.time()
+            # Try to get process creation time (more accurate for duration calculation)
+            try:
+                self.process_start_time = self.process.create_time()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                self.process_start_time = self.start_time
             _logger.debug(f"Monitoring process PID: {self.process.pid}")
 
         except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
@@ -75,11 +82,23 @@ class PerformanceMonitor:
                     # Check if process is still running
                     if not self.process.is_running():
                         _logger.debug("Process has terminated")
+                        # Record process end time for accurate duration calculation
+                        try:
+                            # Get the actual process end time if available
+                            # psutil doesn't directly provide end time, so we use current time
+                            # but we'll adjust timestamps later based on actual process runtime
+                            self.process_end_time = time.time()
+                        except Exception:
+                            self.process_end_time = time.time()
                         break
 
-                    # Get current timestamp (relative to start)
+                    # Get current timestamp (relative to process start time, not monitoring start time)
                     current_time = time.time()
-                    relative_time = current_time - self.start_time
+                    # Use process creation time for more accurate relative timestamps
+                    if self.process_start_time:
+                        relative_time = current_time - self.process_start_time
+                    else:
+                        relative_time = current_time - self.start_time
 
                     # Get CPU percentage
                     # Using interval=None with cpu_percent() gives non-blocking call
@@ -142,9 +161,26 @@ class PerformanceMonitor:
             self.monitor_thread.join(timeout=1.0)
             _logger.debug("Monitoring thread stopped")
 
+        # Calculate actual process runtime
+        actual_duration = 0.0
+        if self.process_start_time and self.process_end_time:
+            actual_duration = self.process_end_time - self.process_start_time
+        elif self.timestamps:
+            # Fallback to last timestamp if we don't have process times
+            actual_duration = self.timestamps[-1] if self.timestamps else 0.0
+            # But cap it at the actual process runtime if we can determine it
+            if self.process and hasattr(self.process, 'create_time'):
+                try:
+                    if not self.process.is_running():
+                        # Process has ended, use last timestamp or process runtime
+                        if self.process_start_time:
+                            actual_duration = min(actual_duration, time.time() - self.process_start_time)
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+
         _logger.info(
             f"Collected {len(self.timestamps)} data points "
-            f"over {self.timestamps[-1] if self.timestamps else 0:.2f} seconds"
+            f"over {actual_duration:.2f} seconds"
         )
 
     def get_cpu_data(self) -> List[float]:
@@ -170,6 +206,52 @@ class PerformanceMonitor:
           List[float]: Relative timestamps in seconds
         """
         return self.timestamps.copy()
+
+    def set_process_end_time(self, end_time: Optional[float] = None):
+        """Set the process end time.
+        
+        Args:
+          end_time (Optional[float]): Process end time. If None, uses current time.
+        """
+        if end_time is None:
+            end_time = time.time()
+        self.process_end_time = end_time
+
+    def get_actual_duration(self) -> float:
+        """Get actual process runtime duration.
+
+        Returns:
+          float: Actual process runtime in seconds
+        """
+        if self.process_start_time and self.process_end_time:
+            return self.process_end_time - self.process_start_time
+        elif self.process_start_time:
+            # Check if process is still running
+            try:
+                if self.process and not self.process.is_running():
+                    # Process has ended but we didn't capture end time
+                    # Estimate from last timestamp or current time
+                    if self.timestamps:
+                        # Use last timestamp as approximation
+                        return min(self.timestamps[-1], time.time() - self.process_start_time)
+                    else:
+                        return time.time() - self.process_start_time
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                # Process definitely ended
+                if self.timestamps:
+                    return min(self.timestamps[-1], time.time() - self.process_start_time)
+                else:
+                    return time.time() - self.process_start_time if self.process_start_time else 0.0
+            # Process still running - shouldn't happen after stop(), but fallback
+            if self.timestamps:
+                return self.timestamps[-1]
+            else:
+                return 0.0
+        elif self.timestamps:
+            # Fallback to last timestamp
+            return self.timestamps[-1]
+        else:
+            return 0.0
 
     def get_summary(self) -> dict:
         """Get summary statistics.

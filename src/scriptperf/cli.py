@@ -182,6 +182,9 @@ def main(args=None):
         # Wait for the process to complete and capture output
         stdout, stderr = process.communicate()
 
+        # Record process end time before stopping monitoring
+        monitor.set_process_end_time(time.time())
+
         # Stop monitoring
         monitor.stop()
 
@@ -189,6 +192,7 @@ def main(args=None):
         cpu_data = monitor.get_cpu_data()
         memory_data = monitor.get_memory_data()
         timestamps = monitor.get_timestamps()
+        actual_duration = monitor.get_actual_duration()
 
         # Generate output filename
         script_name = script_path.stem
@@ -204,6 +208,7 @@ def main(args=None):
             timestamps=timestamps if timestamps else [],
             script_name=script_name,
             output_path=output_path,
+            actual_duration=actual_duration,
         )
         print(f"\n✓ Performance report saved to: {output_path}")
         
