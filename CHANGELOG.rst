@@ -2,6 +2,15 @@
 Changelog
 =========
 
+Version 0.0.3 (2025-11-03)
+===========================
+
+Bugfixes
+--------
+
+- Fixed duration calculation bug: charts now show actual script runtime instead of monitoring thread duration
+  (Empty scripts previously showed incorrect durations like 20+ seconds, now correctly shows < 0.1 seconds)
+
 Version 0.0.2 (2025-11-03)
 ===========================
 
@@ -10,7 +19,6 @@ Bugfixes
 
 - Fixed issue where empty or very fast-running scripts would not generate performance charts
 - Performance charts are now always generated, even when script execution time is too short to collect data
-- Fixed duration calculation bug: charts now show actual script runtime instead of monitoring thread duration
 
 Version 0.0.1 (2025-11-03)
 ==========================
