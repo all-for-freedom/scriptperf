@@ -1,49 +1,51 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-
-    .. image:: https://api.cirrus-ci.com/github/<USER>/scriptperf.svg?branch=main
-        :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/scriptperf
-    .. image:: https://readthedocs.org/projects/scriptperf/badge/?version=latest
-        :alt: ReadTheDocs
-        :target: https://scriptperf.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/scriptperf/main.svg
-        :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/scriptperf
-    .. image:: https://img.shields.io/pypi/v/scriptperf.svg
-        :alt: PyPI-Server
-        :target: https://pypi.org/project/scriptperf/
-    .. image:: https://img.shields.io/conda/vn/conda-forge/scriptperf.svg
-        :alt: Conda-Forge
-        :target: https://anaconda.org/conda-forge/scriptperf
-    .. image:: https://pepy.tech/badge/scriptperf/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/scriptperf
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/scriptperf
-
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
-
-|
-
 ==========
 scriptperf
 ==========
 
+Run Python scripts with performance monitoring (CPU and memory usage tracking).
 
-    Add a short description here!
+Installation
+------------
 
+.. code-block:: bash
 
-A longer description of your project goes here...
+    pip install scriptperf
 
+Usage
+-----
 
-.. _pyscaffold-notes:
+.. code-block:: bash
 
-Note
-====
+    # Run a script with performance monitoring
+    spx demo.py
 
-This project has been set up using PyScaffold 4.6. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
+    # Custom sampling interval and output directory
+    spx demo.py --interval 0.2 --output ./reports
+
+    # Pass arguments to the script
+    spx demo.py --arg1 value1 --arg2 value2
+
+Features
+--------
+
+- Real-time CPU and memory usage monitoring
+- Automatic performance report generation (PNG charts)
+- Support for passing arguments to monitored scripts
+- Configurable sampling interval and output directory
+
+Requirements
+------------
+
+- Python 3.8+
+- psutil>=5.9.0
+- matplotlib>=3.5.0
+
+Repository
+----------
+
+https://github.com/all-for-freedom/scriptperf
+
+License
+-------
+
+MIT License
