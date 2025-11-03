@@ -196,19 +196,19 @@ def main(args=None):
         output_filename = f"{script_name}-{timestamp}.png"
         output_path = output_dir / output_filename
 
-        # Generate performance plot
-        if cpu_data and memory_data:
-            _logger.info(f"Generating performance report: {output_path}")
-            plot_performance_data(
-                cpu_data=cpu_data,
-                memory_data=memory_data,
-                timestamps=timestamps,
-                script_name=script_name,
-                output_path=output_path,
-            )
-            print(f"\n✓ Performance report saved to: {output_path}")
-        else:
-            _logger.warning("No performance data collected")
+        # Generate performance plot (always generate, even if data is empty)
+        _logger.info(f"Generating performance report: {output_path}")
+        plot_performance_data(
+            cpu_data=cpu_data if cpu_data else [],
+            memory_data=memory_data if memory_data else [],
+            timestamps=timestamps if timestamps else [],
+            script_name=script_name,
+            output_path=output_path,
+        )
+        print(f"\n✓ Performance report saved to: {output_path}")
+        
+        if not cpu_data or not memory_data:
+            _logger.info("Script executed too quickly to collect performance data, but chart was still generated")
 
         # Print original script output
         if stdout:
