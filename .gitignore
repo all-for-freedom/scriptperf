@@ -1,20 +1,35 @@
+# Build and distribution files
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+.conda*/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # Temporary and binary files
 *~
 *.py[cod]
 *.so
-*.cfg
-!.isort.cfg
-!setup.cfg
 *.orig
 *.log
 *.pot
-__pycache__/*
-.cache/*
+.cache/
+
+# IDE and editor files
 .*.swp
 */.ipynb_checkpoints/*
 .DS_Store
-
-# Project files
 .ropeproject
 .project
 .pydevproject
@@ -23,14 +38,8 @@ __pycache__/*
 .vscode
 tags
 
-# Package files
-*.egg
-*.eggs/
-.installed.cfg
-*.egg-info
-
 # Unittest and coverage
-htmlcov/*
+htmlcov/
 .coverage
 .coverage.*
 .tox
@@ -38,17 +47,18 @@ junit*.xml
 coverage.xml
 .pytest_cache/
 
-# Build and docs folder/files
-build/*
-dist/*
-sdist/*
-docs/api/*
-docs/_rst/*
-docs/_build/*
-cover/*
+# Docs build files
+docs/api/
+docs/_rst/
+docs/_build/
+cover/
 MANIFEST
+sdist/
 
-# Per-project virtualenvs
-.venv*/
-.conda*/
+# Config files (keep setup.cfg)
+*.cfg
+!.isort.cfg
+!setup.cfg
+
+# Python version
 .python-version
